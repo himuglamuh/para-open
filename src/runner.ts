@@ -164,6 +164,7 @@ export async function runOpencode(
     child.stderr?.pipe(stderrStream);
 
     let timedOut = false;
+    let finalized = false;
     const timer = setTimeout(() => {
       timedOut = true;
       log(`[${spec.label}] timeout after ${spec.timeoutMs}ms, killing`);
@@ -187,6 +188,8 @@ export async function runOpencode(
       signal: NodeJS.Signals | null,
       spawnError: string | null,
     ) => {
+      if (finalized) return;
+      finalized = true;
       clearTimeout(timer);
       activeChildren.delete(child);
       stdoutStream?.end();
