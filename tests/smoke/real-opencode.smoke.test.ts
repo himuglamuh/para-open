@@ -45,8 +45,12 @@ test(
 
     const cfg = await loadConfig(modelsPath);
     const layout = await createRunRoot(join(tmp, "runs"));
+    // Prompt asks for >200 bytes so the run clears the analysis.ts
+    // "incomplete" threshold and exercises the real `ok` classification.
     const result = await orchestrate(layout, cfg, {
-      prompt: "Reply with the single word OK and nothing else.",
+      prompt:
+        "Write a single paragraph of at least 60 words explaining what a hash map is. " +
+        "No code, no headings, no lists - just one plain prose paragraph.",
       sourceDir: null,
       timeoutMs: 120_000,
       dryRun: false,
@@ -55,16 +59,22 @@ test(
 
     assert.equal(result.summaries.length, 1);
     const s = result.summaries[0];
-    assert.equal(s.status, "ok", `expected ok, got ${s.status}: ${s.statusReasons.join("; ")}`);
+    assert.equal(
+      s.status,
+      "ok",
+      `expected ok, got ${s.status}: ${s.statusReasons.join("; ")}`,
+    );
 
     // final.md exists and is non-empty
     const final = await readFile(s.finalFile, "utf8");
     assert.ok(final.trim().length > 0, "final.md should be non-empty");
 
-    // index.json was written
+    // index.json was written and agrees with the in-memory summary
     const runs = await readdir(join(tmp, "runs"));
     assert.equal(runs.length, 1);
-    const idx = JSON.parse(await readFile(join(tmp, "runs", runs[0], "index.json"), "utf8"));
+    const idx = JSON.parse(
+      await readFile(join(tmp, "runs", runs[0], "index.json"), "utf8"),
+    );
     assert.equal(idx.models[0].status, "ok");
   },
 );
