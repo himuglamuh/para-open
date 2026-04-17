@@ -1,0 +1,8 @@
+{
+  "synthesizer": "github-copilot/claude-opus-4.7",
+  "models": [
+    { "id": "github-copilot/claude-sonnet-4.5", "label": "claude-sonnet-4.5" },
+    { "id": "github-copilot/gpt-5.2",          "label": "gpt-5.2" },
+    { "id": "github-copilot/gemini-2.5-pro",   "label": "gemini-2.5-pro" }
+  ]
+}

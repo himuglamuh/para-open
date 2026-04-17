@@ -1,0 +1,57 @@
+{
+  "name": "@himuglamuh/para-open",
+  "version": "0.1.0",
+  "description": "Run the same prompt across many opencode models in parallel, then synthesize a comparison report with Opus 4.7.",
+  "type": "module",
+  "license": "MIT",
+  "author": "himug-lamuh <himuglamuh@proton.me>",
+  "homepage": "https://github.com/himuglamuh/para-open#readme",
+  "bugs": {
+    "url": "https://github.com/himuglamuh/para-open/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/himuglamuh/para-open.git"
+  },
+  "keywords": [
+    "opencode",
+    "llm",
+    "ai",
+    "cli",
+    "parallel",
+    "comparison",
+    "synthesis",
+    "claude",
+    "gpt",
+    "gemini",
+    "evaluation"
+  ],
+  "bin": {
+    "para-open": "dist/index.js"
+  },
+  "files": [
+    "dist/",
+    "models.example.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

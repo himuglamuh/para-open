@@ -1,0 +1,23 @@
+{
+  "synthesizer": "github-copilot/claude-opus-4.7",
+  "models": [
+    { "id": "github-copilot/claude-opus-4.7",        "label": "opus-4.7" },
+    { "id": "github-copilot/claude-opus-4.6",        "label": "opus-4.6" },
+    { "id": "github-copilot/claude-opus-4.5",        "label": "opus-4.5" },
+    { "id": "github-copilot/claude-sonnet-4.6",      "label": "sonnet-4.6" },
+    { "id": "github-copilot/claude-sonnet-4.5",      "label": "sonnet-4.5" },
+    { "id": "github-copilot/claude-sonnet-4",        "label": "sonnet-4" },
+    { "id": "github-copilot/claude-haiku-4.5",       "label": "haiku-4.5" },
+    { "id": "github-copilot/gemini-3.1-pro-preview", "label": "gemini-3.1-pro" },
+    { "id": "github-copilot/gemini-3-flash-preview", "label": "gemini-3-flash" },
+    { "id": "github-copilot/gemini-2.5-pro",         "label": "gemini-2.5-pro" },
+    { "id": "github-copilot/gpt-5.4",                "label": "gpt-5.4" },
+    { "id": "github-copilot/gpt-5.4-mini",           "label": "gpt-5.4-mini" },
+    { "id": "github-copilot/gpt-5.3-codex",          "label": "gpt-5.3-codex" },
+    { "id": "github-copilot/gpt-5.2",                "label": "gpt-5.2" },
+    { "id": "github-copilot/gpt-5.2-codex",          "label": "gpt-5.2-codex" },
+    { "id": "github-copilot/gpt-5-mini",             "label": "gpt-5-mini" },
+    { "id": "github-copilot/gpt-4.1",                "label": "gpt-4.1" },
+    { "id": "github-copilot/gpt-4o",                 "label": "gpt-4o" }
+  ]
+}
