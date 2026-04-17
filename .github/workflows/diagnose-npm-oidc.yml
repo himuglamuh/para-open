@@ -1,0 +1,60 @@
+name: Diagnose npm OIDC
+
+# Manual-only. Runs the same OIDC exchange as the release workflow,
+# but instead of publishing, prints what npm sees us as. Use this to
+# debug trusted-publisher misconfiguration without burning version numbers.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    name: Inspect OIDC identity from npm's perspective
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Print GitHub OIDC token claims
+        run: |
+          ID_TOKEN=$(curl -sLS \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm:registry.npmjs.org" \
+            | jq -r .value)
+          echo "::group::OIDC token header"
+          echo "$ID_TOKEN" | cut -d. -f1 | base64 -d 2>/dev/null | jq .
+          echo "::endgroup::"
+          echo "::group::OIDC token claims"
+          echo "$ID_TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
+          echo "::endgroup::"
+
+      - name: npm whoami via OIDC
+        run: |
+          echo "::group::npm config"
+          npm config get registry
+          npm config list
+          echo "::endgroup::"
+          echo "::group::npm whoami"
+          npm whoami || echo "whoami failed (this may be expected without auth setup)"
+          echo "::endgroup::"
+
+      - name: Inspect package metadata as registry sees it
+        run: |
+          echo "::group::npm view (public metadata)"
+          npm view @himuglamuh/para-open --json | jq '{name, "dist-tags": ."dist-tags", maintainers, _npmUser, versions}'
+          echo "::endgroup::"
+
+      - name: Try a publish dry-run
+        run: |
+          npm ci
+          npm run build
+          echo "::group::publish --dry-run --provenance"
+          npm publish --dry-run --provenance --access public 2>&1 || true
+          echo "::endgroup::"
