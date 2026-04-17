@@ -2,6 +2,8 @@
 import { parseArgs } from "node:util";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { realpathSync } from "node:fs";
 import { loadConfig } from "./config.js";
 import { createRunRoot } from "./workspace.js";
 import { orchestrate, OrchestrationResult, ModelRunSummary } from "./orchestrator.js";
@@ -47,8 +49,16 @@ interface Cli {
   positionals: string[];
 }
 
-function parse(): Cli {
+/**
+ * Parse para-open CLI arguments using node:util.parseArgs.
+ *
+ * Exported (and accepts a custom argv) so tests can exercise parsing without
+ * spawning a subprocess. When `argv` is omitted, falls back to
+ * process.argv.slice(2) (the parseArgs default).
+ */
+export function parseCliArgs(argv?: string[]): Cli {
   const parsed = parseArgs({
+    args: argv,
     allowPositionals: true,
     options: {
       "prompt-file": { type: "string" },
@@ -70,6 +80,10 @@ function parse(): Cli {
     },
   });
   return parsed as Cli;
+}
+
+function parse(): Cli {
+  return parseCliArgs();
 }
 
 async function runSynthSubcommand(
@@ -197,8 +211,8 @@ async function runAskSubcommand(
   return !result.spawnError && !result.timedOut && result.exitCode === 0 ? 0 : 1;
 }
 
-async function main(): Promise<number> {
-  const { values, positionals } = parse();
+export async function main(argv?: string[]): Promise<number> {
+  const { values, positionals } = parseCliArgs(argv);
 
   if (values.help) {
     process.stdout.write(HELP);
@@ -352,10 +366,24 @@ async function main(): Promise<number> {
   return anyModelOk && synthOk ? 0 : 1;
 }
 
-main().then(
-  (code) => process.exit(code),
-  (err) => {
-    log(`fatal: ${(err as Error).stack ?? String(err)}`);
-    process.exit(1);
-  },
-);
+// Auto-run only when invoked as the program entry point (preserves existing
+// CLI behavior). Importing this module from tests does NOT trigger main().
+function isMainModule(): boolean {
+  try {
+    const entry = process.argv[1] ? realpathSync(process.argv[1]) : "";
+    const here = realpathSync(fileURLToPath(import.meta.url));
+    return entry === here;
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
+  main().then(
+    (code) => process.exit(code),
+    (err) => {
+      log(`fatal: ${(err as Error).stack ?? String(err)}`);
+      process.exit(1);
+    },
+  );
+}

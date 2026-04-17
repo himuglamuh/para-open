@@ -110,6 +110,17 @@ export async function diffWorkspace(
   before: FileSnapshot,
 ): Promise<ChangeSummary> {
   const after = await snapshotWorkspace(workspace);
+  return computeChanges(before, after);
+}
+
+/**
+ * Pure diff between two snapshots. Exported so tests can verify diff semantics
+ * without touching the filesystem.
+ */
+export function computeChanges(
+  before: FileSnapshot,
+  after: FileSnapshot,
+): ChangeSummary {
   const created: string[] = [];
   const modified: string[] = [];
   const deleted: string[] = [];

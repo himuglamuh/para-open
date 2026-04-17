@@ -712,6 +712,17 @@ export async function askFollowUp(opts: AskOptions): Promise<AskResult> {
   return result;
 }
 
+/* ----------------------------- Test exports ----------------------------- */
+
+export {
+  readTextSafe as __readTextSafe,
+  tailText as __tailText,
+  buildDossier as __buildDossier,
+  extractSessionId as __extractSessionId,
+  nextFollowupIndex as __nextFollowupIndex,
+  exportLatestAssistantText as __exportLatestAssistantText,
+};
+
 async function nextFollowupIndex(dir: string): Promise<number> {
   const { readdir } = await import("node:fs/promises");
   let n = 1;

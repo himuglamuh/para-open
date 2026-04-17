@@ -223,7 +223,10 @@ export async function orchestrate(
   return { runRoot: layout.runRoot, promptFile: layout.promptFile, summaries };
 }
 
-function printSummaryTable(summaries: ModelRunSummary[]): void {
+function printSummaryTable(
+  summaries: ModelRunSummary[],
+  sink: { write(s: string): void } = process.stderr,
+): void {
   const header = [
     "label",
     "model",
@@ -254,13 +257,16 @@ function printSummaryTable(summaries: ModelRunSummary[]): void {
   }
   const widths = header.map((_, i) => Math.max(...rows.map((r) => r[i].length)));
   const line = (r: string[]) => r.map((c, i) => pad(c, widths[i])).join("  ");
-  process.stderr.write("\n" + line(rows[0]) + "\n");
-  process.stderr.write(widths.map((w) => "-".repeat(w)).join("  ") + "\n");
-  for (let i = 1; i < rows.length; i++) process.stderr.write(line(rows[i]) + "\n");
-  process.stderr.write("\n");
+  sink.write("\n" + line(rows[0]) + "\n");
+  sink.write(widths.map((w) => "-".repeat(w)).join("  ") + "\n");
+  for (let i = 1; i < rows.length; i++) sink.write(line(rows[i]) + "\n");
+  sink.write("\n");
 }
 
 function shellQuote(s: string): string {
   if (/^[A-Za-z0-9_\-./:=]+$/.test(s)) return s;
   return "'" + s.replace(/'/g, `'\\''`) + "'";
 }
+
+/* Test-only re-exports of internal helpers. */
+export { printSummaryTable as __printSummaryTable, shellQuote as __shellQuote };

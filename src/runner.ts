@@ -71,6 +71,20 @@ export function unregisterChild(child: ChildProcess): void {
   activeChildren.delete(child);
 }
 
+/**
+ * Test-only: clear module-level state so test files can run in isolation
+ * without leaking signal handlers or zombie children references.
+ */
+export function __resetForTests(): void {
+  activeChildren.clear();
+  signalForwardingInstalled = false;
+}
+
+/** Test-only: returns a snapshot of currently tracked children. */
+export function __activeChildrenSnapshot(): ChildProcess[] {
+  return Array.from(activeChildren);
+}
+
 export interface SpawnOptions {
   binary?: string;
   extraArgs?: string[];
@@ -281,7 +295,7 @@ export function buildFinalMarkdown(result: RunResult): string {
   return `${header}_(no substantive assistant text was produced)_\n`;
 }
 
-function buildStatusHeader(result: RunResult): string {
+export function buildStatusHeader(result: RunResult): string {
   if (result.status === "ok") return "";
   const a = result.analysis;
   const parts: string[] = [];
