@@ -10,6 +10,7 @@ import { orchestrate, OrchestrationResult, ModelRunSummary } from "./orchestrato
 import { synthesize, askFollowUp } from "./synthesizer.js";
 import { reextractFinal, installSignalForwarding } from "./runner.js";
 import { fmtDuration, log, loadPackageVersion } from "./util.js";
+import { parseInitModelsArgs, runInitModels } from "./init-models.js";
 
 const HELP = `para-open - run one prompt across many opencode models in parallel
 
@@ -19,6 +20,18 @@ Usage:
   para-open synth <run-root>                re-run synthesis on an existing run dir
   para-open ask <run-root> "<question>"     ask a follow-up about the results
   para-open ask <run-root> --question-file <path>
+  para-open init-models [options]           bootstrap models.json from opencode
+
+init-models options:
+  --interactive            Pick models interactively (default if TTY).
+  --all                    Select every model 'opencode models' lists.
+  --provider <id>          Select all models from one provider (e.g. anthropic).
+  --filter <glob>...       Select models whose id matches any glob pattern.
+  --preset <name>          Use a curated preset: frontier | cheap | claude-vs-gpt.
+  --synth <id>             Pick the synthesizer model (else interactive/auto).
+  --out <path>             Output path (default: ./models.json).
+  --force                  Overwrite existing output file.
+  --stdout                 Print JSON to stdout instead of writing a file.
 
 Options:
   --prompt-file <path>     Read prompt from file instead of positional arg.
@@ -212,6 +225,33 @@ async function runAskSubcommand(
 }
 
 export async function main(argv?: string[]): Promise<number> {
+  const rawArgv = argv ?? process.argv.slice(2);
+
+  // init-models has its own flag parser (supports repeated --filter values etc.)
+  // so handle it BEFORE node:util.parseArgs gets a chance to reject unknown flags.
+  if (rawArgv[0] === "init-models") {
+    installSignalForwarding();
+    let cli;
+    try {
+      cli = parseInitModelsArgs(rawArgv.slice(1));
+    } catch (e) {
+      log(`error: ${(e as Error).message}`);
+      return 2;
+    }
+    try {
+      return await runInitModels({
+        selector: cli.selector,
+        synth: cli.synth,
+        out: cli.out,
+        force: cli.force,
+        stdout: cli.stdout,
+      });
+    } catch (e) {
+      log(`error: ${(e as Error).message}`);
+      return 1;
+    }
+  }
+
   const { values, positionals } = parseCliArgs(argv);
 
   if (values.help) {

@@ -117,6 +117,42 @@ runs/<UTC-ISO>-<shortid>/
 
 Labels are optional (auto-slugified from `id` if omitted). See [`models.example.json`](./models.example.json) for a larger Copilot catalog you can copy from.
 
+### Bootstrapping `models.json`
+
+Rather than hand-writing the file, run `para-open init-models` to generate one
+from the providers you've already authenticated with `opencode`:
+
+```bash
+# Interactive picker (default when run from a TTY)
+para-open init-models
+
+# Every authenticated model
+para-open init-models --all
+
+# All models from one provider
+para-open init-models --provider anthropic
+
+# Glob-match (any number of patterns)
+para-open init-models --filter '*opus*' '*gpt-5*'
+
+# Curated presets (will go stale as new model versions ship)
+para-open init-models --preset frontier        # one strong model per family
+para-open init-models --preset cheap           # haiku / mini / flash tier
+para-open init-models --preset claude-vs-gpt   # head-to-head pair
+
+# Pin the synthesizer explicitly
+para-open init-models --all --synth openai/gpt-5
+
+# Print to stdout instead of writing a file
+para-open init-models --preset frontier --stdout
+
+# Overwrite an existing models.json
+para-open init-models --all --force
+```
+
+The synthesizer defaults to `claude-opus-4.7` when available, falling back to
+sonnet variants then `gpt-5`. Override with `--synth <id>`.
+
 ## Run status
 
 Each run is classified into a `status` that the dossier, summary table, and `final.md` warning header all surface:

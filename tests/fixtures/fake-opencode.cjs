@@ -21,6 +21,7 @@
  *   PARAOPEN_FAKE_EXPORT_TEXT       text returned as the latest assistant message
  *   PARAOPEN_FAKE_LOG_FILE          if set, append a "[fake] called argv: ..." entry per invocation
  *   PARAOPEN_FAKE_IGNORE_SIGTERM    if "1", ignore SIGTERM (lets timeout escalate to SIGKILL)
+ *   PARAOPEN_FAKE_MODELS_LIST       newline- or comma-separated provider/model ids returned by `models`
  */
 "use strict";
 
@@ -189,12 +190,27 @@ async function exportSubcommand(_sessionId) {
   process.exit(0);
 }
 
+async function modelsSubcommand() {
+  const raw = process.env.PARAOPEN_FAKE_MODELS_LIST || "";
+  const ids = raw
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  for (const id of ids) {
+    process.stdout.write(id + "\n");
+  }
+  await sleep(DELAY_MS);
+  process.exit(parseInt(process.env.PARAOPEN_FAKE_EXIT || "0", 10));
+}
+
 async function main() {
   const argv = process.argv.slice(2);
   if (argv[0] === "run") {
     await runSubcommand(argv.slice(1));
   } else if (argv[0] === "export") {
     await exportSubcommand(argv[1]);
+  } else if (argv[0] === "models") {
+    await modelsSubcommand();
   } else {
     process.stderr.write(`[fake] unknown subcommand: ${argv[0]}\n`);
     process.exit(2);

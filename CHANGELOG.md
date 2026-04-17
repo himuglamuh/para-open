@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-04-17
+
+### Added
+
+- `para-open init-models` subcommand bootstraps a `models.json` from the
+  providers you've already authenticated with `opencode`. Supports five
+  selection modes (`--interactive`, `--all`, `--provider`, `--filter`,
+  `--preset`), three curated presets (`frontier`, `cheap`, `claude-vs-gpt`),
+  auto-picking a sensible synthesizer (override with `--synth`), and
+  output to a file or `--stdout`. No new runtime dependencies.
+
+### Internal
+
+- Extracted `validateModelsConfig` from `loadConfig` so the new
+  `init-models` command can validate generated configs in-memory before
+  writing them.
+
 ## [0.1.7] - 2026-04-17
 
 ### Fixed
