@@ -1,6 +1,6 @@
 {
   "name": "@himuglamuh/para-open",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Run the same prompt across many opencode models in parallel, then synthesize a comparison report with Opus 4.7.",
   "type": "module",
   "license": "MIT",
