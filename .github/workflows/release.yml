@@ -22,8 +22,12 @@ jobs:
 
       - name: Upgrade npm to a version that supports OIDC trusted publishing
         # npm trusted publishing auto-detection requires npm >= 11.5.1.
-        # Node 22 ships with npm 10.x, so we upgrade explicitly.
-        run: npm install -g npm@latest
+        # Node 22 ships with npm 10.x. We pin to 11.x and use --force to
+        # bypass a known npm 10 -> 11 self-upgrade bug where reify fails
+        # with MODULE_NOT_FOUND on transitive deps.
+        run: |
+          npm install -g npm@11 --force
+          npm --version
 
       - run: npm ci
       - run: npm run build
