@@ -41,6 +41,12 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "clean": "rm -rf dist",
+    "test": "node --import tsx --test --test-concurrency=1 'tests/unit/**/*.test.ts' 'tests/integration/**/*.test.ts' 'tests/e2e/**/*.test.ts'",
+    "test:unit": "node --import tsx --test --test-concurrency=1 'tests/unit/**/*.test.ts'",
+    "test:integration": "node --import tsx --test --test-concurrency=1 'tests/integration/**/*.test.ts'",
+    "test:e2e": "node --import tsx --test --test-concurrency=1 'tests/e2e/**/*.test.ts'",
+    "test:smoke": "node --import tsx --test --test-concurrency=1 'tests/smoke/**/*.test.ts'",
+    "test:coverage": "node --import tsx --test --test-concurrency=1 --experimental-test-coverage 'tests/unit/**/*.test.ts' 'tests/integration/**/*.test.ts' 'tests/e2e/**/*.test.ts'",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "engines": {
