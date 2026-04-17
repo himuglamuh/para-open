@@ -97,3 +97,39 @@ For test-helper internals, the fake-opencode protocol, and notes on how the e2e 
 4. Open a PR with a short description of the *why*, not just the *what*.
 
 That's it. Thanks for reading this far.
+
+## Releasing (maintainer notes)
+
+Releases are fully automated by `.github/workflows/release.yml`, triggered by
+pushing a `v*` git tag. The workflow uses **npm OIDC trusted publishing** —
+there is no `NPM_TOKEN` secret.
+
+To cut a release:
+
+```sh
+# Make sure main is clean and CI is green
+npm version patch -m "%s"   # or minor / major; bumps package.json + git tag
+git push --follow-tags
+```
+
+The workflow will:
+1. Run on Node 24 (required for npm ≥ 11.5.1, which is required for OIDC).
+2. `npm ci`, build, run the full test suite.
+3. Verify the git tag matches `package.json`'s `version`.
+4. Strip the placeholder `_authToken` that `actions/setup-node` writes (this
+   would otherwise be sent as a Bearer header and rejected by the registry).
+5. `npm publish --provenance --access public`. npm exchanges the GitHub OIDC
+   token for a registry token automatically.
+
+The trusted publisher entry on npmjs.com must match exactly:
+- Org: `himuglamuh`, Repo: `para-open`
+- Workflow filename: `release.yml` (just the filename)
+- Environment: `npm-publish`
+
+The corresponding GitHub Actions environment `npm-publish` must exist on the
+repo (Settings → Environments). It needs no protection rules or secrets —
+its name is what binds the OIDC token to the trusted publisher entry.
+
+If a publish fails, the version number is *not* burned (npm rejects rather
+than partially writing). You can re-tag the same version on a fixed commit
+and force-push the tag.
